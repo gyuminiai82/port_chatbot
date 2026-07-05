@@ -53,15 +53,16 @@
 
 .messageWrapper {
   display: flex;
+  flex-direction: column;
   width: 100%;
 }
 
 .messageWrapperUser {
-  justify-content: flex-end;
+  align-items: flex-end;
 }
 
 .messageWrapperBot {
-  justify-content: flex-start;
+  align-items: flex-start;
 }
 
 .message {
