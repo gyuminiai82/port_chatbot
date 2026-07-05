@@ -1,0 +1,37 @@
+name: Deploy to PC
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Target PC via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            # 1. PC의 프로젝트 폴더로 이동
+            # (사전에 PC에 git clone이 한 번 되어있어야 합니다. 경로가 다르면 아래를 수정하세요)
+            cd ~/port_chatbot
+            
+            # 2. 최신 코드 불러오기
+            git pull origin main
+            
+            # 3. GitHub Secrets 값을 가져와 PC에 .env 파일 생성
+            echo "UPSTAGE_API_KEY=${{ secrets.UPSTAGE_API_KEY }}" > .env
+            echo "PINECONE_API_KEY=${{ secrets.PINECONE_API_KEY }}" >> .env
+            
+            # 4. 기존 도커 컨테이너 중지 및 삭제
+            docker stop chatbot-container || true
+            docker rm chatbot-container || true
+            
+            # 5. 도커 이미지 빌드 및 실행
+            docker build -t chatbot-app .
+            docker run -d -p 8000:8000 --env-file .env --name chatbot-container chatbot-app
