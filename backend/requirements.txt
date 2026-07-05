@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+pydantic
+langchain
+langchain-core
+langchain-community
+python-dotenv
+unstructured
+python-docx
+langchain-upstage
+langchain-pinecone
+pinecone-client
+sentence-transformers
+langchain-huggingface
