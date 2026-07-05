@@ -77,7 +77,7 @@ async def chat_endpoint(request: ChatRequest):
         
         if "[적용 문헌]" in full_answer:
             parts = full_answer.split("[적용 문헌]")
-            answer_text = parts[0].strip()
+            answer_text = parts[0].strip().rstrip('=-_ \n\r')
             applied_source = parts[1].strip()
             
             # Clean up markdown table markers if the LLM still outputs them
