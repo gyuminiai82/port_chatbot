@@ -65,7 +65,16 @@ async def health_check():
 async def chat_endpoint(request: ChatRequest):
     try:
         response = rag_chain.invoke({"input": request.message})
-        return {"response": response["answer"]}
+        
+        sources = []
+        if "context" in response:
+            for doc in response["context"]:
+                sources.append({
+                    "content": doc.page_content,
+                    "metadata": doc.metadata
+                })
+                
+        return {"response": response["answer"], "sources": sources}
     except Exception as e:
         return {"response": f"오류가 발생했습니다: {str(e)}"}
 

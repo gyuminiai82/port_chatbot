@@ -3,10 +3,16 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './page.module.css';
 
+interface MessageSource {
+  content: string;
+  metadata: any;
+}
+
 interface Message {
   id: string;
   role: 'user' | 'bot';
   content: string;
+  sources?: MessageSource[];
 }
 
 export default function Home() {
@@ -52,7 +58,8 @@ export default function Home() {
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'bot',
-        content: data.response || 'Error processing response'
+        content: data.response || 'Error processing response',
+        sources: data.sources || undefined
       };
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
@@ -73,8 +80,13 @@ export default function Home() {
       <div className={styles.chatContainer}>
         <header className={styles.header}>
           <div className={styles.headerTitle}>
-            <div className={styles.statusDot}></div>
-            AI Chatbot
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 4px rgba(16, 185, 129, 0.5))' }}>
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M8 9l2 6 2-6 2 6 2-6"></path>
+              <line x1="7" y1="12" x2="17" y2="12"></line>
+              <line x1="7" y1="15" x2="17" y2="15"></line>
+            </svg>
+            소득세법 챗봇
           </div>
         </header>
 
@@ -87,6 +99,25 @@ export default function Home() {
               <div className={`${styles.message} ${msg.role === 'user' ? styles.messageUser : styles.messageBot}`}>
                 {msg.content}
               </div>
+              {msg.sources && msg.sources.length > 0 && (
+                <div className={styles.sourcesContainer}>
+                  <div className={styles.sourcesTitle}>참고 문헌</div>
+                  <div className={styles.sourcesList}>
+                    {msg.sources.map((source, idx) => (
+                      <div key={idx} className={styles.sourceItem}>
+                        {source.metadata?.source && (
+                          <div className={styles.sourceMeta}>
+                            [{source.metadata.source}{source.metadata.page ? ` - p.${source.metadata.page}` : ''}]
+                          </div>
+                        )}
+                        <div className={styles.sourceContent}>
+                          {source.content.length > 100 ? source.content.substring(0, 100) + '...' : source.content}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
           {isLoading && (
