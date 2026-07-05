@@ -72,6 +72,7 @@
   line-height: 1.5;
   font-size: 1rem;
   word-wrap: break-word;
+  white-space: pre-wrap;
   animation: fadeIn 0.3s ease-out;
 }
 
@@ -214,4 +215,7 @@
   font-size: 0.8rem;
   color: #cbd5e1;
   line-height: 1.4;
+  white-space: pre-wrap;
+  max-height: 120px;
+  overflow-y: auto;
 }
