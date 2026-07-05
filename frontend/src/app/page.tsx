@@ -111,7 +111,7 @@ export default function Home() {
                           </div>
                         )}
                         <div className={styles.sourceContent}>
-                          {source.content.length > 100 ? source.content.substring(0, 100) + '...' : source.content}
+                          {source.content}
                         </div>
                       </div>
                     ))}
