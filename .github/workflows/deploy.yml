@@ -29,9 +29,9 @@ jobs:
             echo "PINECONE_API_KEY=${{ secrets.PINECONE_API_KEY }}" >> .env
             
             # 4. 기존 도커 컨테이너 중지 및 삭제
-            docker stop chatbot-container || true
-            docker rm chatbot-container || true
+            docker stop port_chatbot || true
+            docker rm port_chatbot || true
             
             # 5. 도커 이미지 빌드 및 실행
             docker build -t chatbot-app .
-            docker run -d -p 8000:8000 --env-file .env --name chatbot-container chatbot-app
+            docker run -d -p 3003:8000 --restart always --env-file .env --name port_chatbot chatbot-app
