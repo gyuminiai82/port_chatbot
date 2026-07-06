@@ -9,7 +9,20 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to Target PC via SSH
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Copy Files to Target PC
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          source: "."
+          target: "~/port_chatbot"
+
+      - name: Execute Deploy Script on Target PC
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
@@ -17,21 +30,23 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
           script: |
-            # 1. PC의 프로젝트 폴더로 이동
-            # (사전에 PC에 git clone이 한 번 되어있어야 합니다. 경로가 다르면 아래를 수정하세요)
             cd ~/port_chatbot
             
-            # 2. 최신 코드 불러오기
-            git pull origin main
-            
-            # 3. GitHub Secrets 값을 가져와 PC에 .env 파일 생성
+            # GitHub Secrets 값을 가져와 PC에 .env 파일 생성
             echo "UPSTAGE_API_KEY=${{ secrets.UPSTAGE_API_KEY }}" > .env
             echo "PINECONE_API_KEY=${{ secrets.PINECONE_API_KEY }}" >> .env
             
-            # 4. 기존 도커 컨테이너 중지 및 삭제
+            # 기존 도커 컨테이너 중지 및 삭제
             docker stop port_chatbot || true
             docker rm port_chatbot || true
             
-            # 5. 도커 이미지 빌드 및 실행
+            # 도커 이미지 빌드 및 실행
             docker build -t chatbot-app .
             docker run -d -p 3003:8000 --restart always --env-file .env --name port_chatbot chatbot-app
+            
+            # Nginx 설정 파일 복사 및 적용 (비밀번호를 이용해 sudo 권한 획득)
+            echo ${{ secrets.PASSWORD }} | sudo -S cp ~/port_chatbot/nginx_chatbot.conf /etc/nginx/sites-available/chatbot.minstudio.app
+            echo ${{ secrets.PASSWORD }} | sudo -S ln -sf /etc/nginx/sites-available/chatbot.minstudio.app /etc/nginx/sites-enabled/
+            
+            # Nginx 재시작
+            echo ${{ secrets.PASSWORD }} | sudo -S systemctl reload nginx
