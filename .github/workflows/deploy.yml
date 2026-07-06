@@ -43,10 +43,3 @@ jobs:
             # 도커 이미지 빌드 및 실행
             docker build -t chatbot-app .
             docker run -d -p 3003:8000 --restart always --env-file .env --name port_chatbot chatbot-app
-            
-            # Nginx 설정 파일 복사 및 적용 (비밀번호를 이용해 sudo 권한 획득)
-            echo ${{ secrets.PASSWORD }} | sudo -S cp ~/port_chatbot/nginx_chatbot.conf /etc/nginx/sites-available/chatbot.minstudio.app
-            echo ${{ secrets.PASSWORD }} | sudo -S ln -sf /etc/nginx/sites-available/chatbot.minstudio.app /etc/nginx/sites-enabled/
-            
-            # Nginx 재시작
-            echo ${{ secrets.PASSWORD }} | sudo -S systemctl reload nginx
